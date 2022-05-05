@@ -33,7 +33,12 @@ io.on('connection', (socket) =>{
     socket.on('join-room', (roomId, userId, userName) =>{
         socket.join(roomId)
         socket.to(roomId).emit("user-connected", userId, userName)
+        socket.on('message', (userId, message) => {
+            console.log({ userId, message })
+            io.to(roomId).emit("broadcast-chat-message", userId, message)        
+        })
     })
+
 })
 
 server.listen(3030)
