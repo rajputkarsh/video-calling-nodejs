@@ -22,7 +22,12 @@ app.use(express.static("public"))
 app.use('/peerjs', peerServer)
 
 app.get('/', (req, res) => {
-    res.redirect(`/${uuidv4()}`)
+    res.render('login')
+    // res.redirect(`/${uuidv4()}`)
+})
+
+app.get('/generate-new-meeting-link', (req, res) => {
+    res.status(200).send(`${uuidv4()}`)
 })
 
 app.get('/:room', (req, res) => {
@@ -31,14 +36,22 @@ app.get('/:room', (req, res) => {
 
 io.on('connection', (socket) =>{
     socket.on('join-room', (roomId, userId, userName) =>{
+
         socket.join(roomId)
+
         socket.to(roomId).emit("user-connected", userId, userName)
+
         socket.on('message', (userId, message) => {
             console.log({ userId, message })
             io.to(roomId).emit("broadcast-chat-message", userId, message)        
         })
+
+        socket.on('disconnect', () => {
+            socket.to(roomId).emit('user-disconnected', userId)
+        })
+
     })
 
 })
 
-server.listen(3030)
+server.listen(process.env.PORT || 3030)

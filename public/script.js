@@ -8,6 +8,7 @@ let peer     = new Peer(undefined, {
     host: '/',
     port: '3030'
 });
+const peers = {}
 let myVideoStream
 let message = $('input') 
 const videoGrid = document.getElementById("video-grid")
@@ -23,14 +24,15 @@ navigator.mediaDevices.getUserMedia({
 }).then(stream => {
     myVideoStream = stream
     console.log("Adding your own Video stream")
-    addVideoStream(myVideo, stream)
+    addVideoStream(myVideo, stream, peer.id)
 
     peer.on('call', call => {
         call.answer(myVideoStream)
         call.on('stream', userVideoStream => {
             console.log("Streaming event after receiving call")
+
             const video = document.createElement('video')
-            addVideoStream(video, userVideoStream)
+            addVideoStream(video, userVideoStream, call.provider._id)
         })
     })
 
@@ -40,7 +42,7 @@ navigator.mediaDevices.getUserMedia({
     })
 
 }).catch(error => {
-    console.log(error)
+    alert("No video stream identified")
 })
 
 // peer and socket events
@@ -49,11 +51,19 @@ peer.on('open', (userId) => {
     socket.emit('join-room', ROOM_ID, userId, "karsh")
 })
 
+socket.on('user-disconnected', userId => {
+    console.log(`User ${userId} disconnected`)
+    // add toast here
+    if (peers[userId]) peers[userId].close()
+})
+
+
 
 // helper functions
-const addVideoStream = (video, stream) => {
+const addVideoStream = (video, stream, userId) => {
     console.log("Adding video stream")
     video.srcObject = stream
+    video.setAttribute("data-userid", userId)
     video.addEventListener('loadedmetadata', () => {
         video.play()
     })
@@ -67,8 +77,23 @@ const connectToNewUser = (userId, stream) => {
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
         console.log("Send your own stream")
-        addVideoStream(video, userVideoStream)
+        addVideoStream(video, userVideoStream, userId)
     })
+
+    call.on('close', () => {
+        console.log("closed")
+        video.remove()
+    })
+
+    peers[userId] = call
+
+}
+
+const leaveMeeting = () => {
+    socket.disconnect()
+
+    // redirect to a page
+
 }
 
 const muteUnmute = () => {

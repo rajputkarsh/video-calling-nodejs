@@ -1,0 +1,14 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+}
+
+.main{
+    padding: 30px;
+    margin-top: 20vh;
+    margin-left: 20vw;
+    width: 60%;
+    height: 60vh;
+    background-color: #fff;
+}
