@@ -1,0 +1,23 @@
+body{
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+}
+
+.main{
+    padding: 30px;
+    margin-top: 20vh;
+    margin-left: 20vw;
+    width: 60vw;
+    height: 60vh;
+    background-color: #fff;
+}
+
+@media screen and (max-width:480px){
+    .main{
+        margin-top: 10vh;
+        margin-left: 10vw;
+        width: 80vw;
+        height: 80vh;
+    }
+}
