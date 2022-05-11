@@ -13,6 +13,14 @@ body{
     background-color: #fff;
 }
 
+.full-width{
+    width: 100% !important;
+}
+
+.text-center{
+    justify-content: center;
+}
+
 @media screen and (max-width:480px){
     .main{
         margin-top: 10vh;

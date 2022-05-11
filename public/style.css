@@ -104,3 +104,19 @@
 .stop {
     color: #CC3B33;
 }
+
+.video-div{
+    position: relative;
+}
+
+.video-label{
+    position: absolute;
+    z-index: 9;
+    color: rgb(255, 255, 255);
+    margin-top: 10px;
+    margin-left: 20px;    
+}
+
+.video-element{
+    border-radius: 20px;
+}

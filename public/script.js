@@ -24,7 +24,7 @@ navigator.mediaDevices.getUserMedia({
 }).then(stream => {
     myVideoStream = stream
     console.log("Adding your own Video stream")
-    addVideoStream(myVideo, stream, peer.id)
+    addVideoStream(myVideo, stream, peer.id, (sessionStorage.getItem("userdata") ? JSON.parse(sessionStorage.getItem("userdata")).name : "Guest"))
 
     peer.on('call', call => {
         call.answer(myVideoStream)
@@ -32,13 +32,13 @@ navigator.mediaDevices.getUserMedia({
             console.log("Streaming event after receiving call")
 
             const video = document.createElement('video')
-            addVideoStream(video, userVideoStream, call.provider._id)
+            addVideoStream(video, userVideoStream, call.provider._id, "abcd")
         })
     })
 
     socket.on("user-connected", (userId, userName) => {
         console.log(`User ${userName} connected using ${userId}`)
-        connectToNewUser(userId, stream)
+        connectToNewUser(userId, userName, stream)
     })
 
 }).catch(error => {
@@ -60,24 +60,36 @@ socket.on('user-disconnected', userId => {
 
 
 // helper functions
-const addVideoStream = (video, stream, userId) => {
+const addVideoStream = (video, stream, userId, userName) => {
+
     console.log("Adding video stream")
     video.srcObject = stream
+    video.classList.add("video-element")
     video.setAttribute("data-userid", userId)
     video.addEventListener('loadedmetadata', () => {
         video.play()
     })
-    videoGrid.append(video)
+
+    videoDiv = document.createElement("div")
+    videoDiv.classList.add("video-div")
+
+    videoLabel = document.createElement("label")
+    videoLabel.classList.add("video-label")
+    videoLabel.textContent = (userId == peer.id ? "(You) " : "") + userName
+
+    videoDiv.append(videoLabel)
+    videoDiv.append(video)
+    videoGrid.append(videoDiv)
 }
 
-const connectToNewUser = (userId, stream) => {
+const connectToNewUser = (userId, userName, stream) => {
     console.log("Called New peer - ", userId)
     const call = peer.call(userId, stream)
     console.table(call)
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
         console.log("Send your own stream")
-        addVideoStream(video, userVideoStream, userId)
+        addVideoStream(video, userVideoStream, userId, userName)
     })
 
     call.on('close', () => {

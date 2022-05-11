@@ -12,7 +12,7 @@ function joinNewMeeting() {
         return
     }
 
-    localStorage.setItem("userdata", JSON.stringify({ name: name, email: email }) )
+    sessionStorage.setItem("userdata", JSON.stringify({ name: name, email: email }) )
 
     fetch('/generate-new-meeting-link').then(
         response => {
@@ -43,7 +43,7 @@ function joinExistingMeeting() {
         return
     }
     
-    localStorage.setItem("userdata", JSON.stringify({ name: name, email: email }) )
+    sessionStorage.setItem("userdata", JSON.stringify({ name: name, email: email }) )
     
     let meetingLink = $("#meeting-link").val()
     
