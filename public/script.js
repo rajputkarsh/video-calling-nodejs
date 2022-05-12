@@ -4,10 +4,12 @@
 
 const socket = io('/')
 let peer     = new Peer(undefined, {
-    path: '/peerjs',
-    host: '/',
-    port: '3030'
+    peerName: sessionStorage.getItem("userdata") ? JSON.parse(sessionStorage.getItem("userdata")).name : "Guest",
+    path:     '/peerjs',
+    host:     '/',
+    port:     '3030'
 });
+
 const peers = {}
 let myVideoStream
 let message = $('input') 
@@ -30,9 +32,8 @@ navigator.mediaDevices.getUserMedia({
         call.answer(myVideoStream)
         call.on('stream', userVideoStream => {
             console.log("Streaming event after receiving call")
-
             const video = document.createElement('video')
-            addVideoStream(video, userVideoStream, call.provider._id, "abcd")
+            addVideoStream(video, userVideoStream, call.provider._id, peer.peerName)
         })
     })
 
@@ -48,7 +49,7 @@ navigator.mediaDevices.getUserMedia({
 // peer and socket events
 peer.on('open', (userId) => {
     console.log("Connected to peer server, ID - ", peer.id)
-    socket.emit('join-room', ROOM_ID, userId, "karsh")
+    socket.emit('join-room', ROOM_ID, userId, sessionStorage.getItem("userData") ? JSON.parse(sessionStorage.getItem("userData")).name : null )
 })
 
 socket.on('user-disconnected', userId => {
@@ -61,6 +62,10 @@ socket.on('user-disconnected', userId => {
 
 // helper functions
 const addVideoStream = (video, stream, userId, userName) => {
+
+    if( !isValidUsername(userName) ){
+        userName = "Guest"
+    }
 
     console.log("Adding video stream")
     video.srcObject = stream
@@ -89,6 +94,7 @@ const connectToNewUser = (userId, userName, stream) => {
     const video = document.createElement('video')
     call.on('stream', userVideoStream => {
         console.log("Send your own stream")
+        console.log(call.peer)
         addVideoStream(video, userVideoStream, userId, userName)
     })
 
@@ -185,6 +191,9 @@ const scrollToBottomOfChat = () => {
     d.scrollTop(d.prop("scrollHeight"))
 }
 
+const isValidUsername = (userName) => {
+    return userName != null && userName != undefined && userName.length > 0
+}
 
 // room chatting logic
 
